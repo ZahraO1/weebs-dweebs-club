@@ -7,88 +7,98 @@
 //  3. Choose your sheet tab → select CSV → Publish
 //  4. Copy the URL and paste it below
 // ════════════════════════════════════════════════════
-const SHEET_CSV_URL = "YOUR_GOOGLE_SHEETS_CSV_URL_HERE";
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT26op5KMoi5aaeAasyo4AzPp1eCQW37JZUsKONMwo51CPn88tynZOv7Tg577zYKrvf3GxfNXFDTmDL/pub?gid=0&single=true&output=csv";
 
 // ── Demo data — shown when no sheet URL is configured ──
+// Columns match your Google Sheet exactly:
+// name | status | ch? | type of media | genre | who's recording | rating | pg
 const DEMO_BOOKS = [
   {
-    Title: "Dune",
-    Author: "Frank Herbert",
-    Genre: "Sci-Fi",
-    Rating: "5",
-    "Date Read": "2024-01",
-    "Cover URL": "",
-    Notes: "An absolute masterpiece of world-building. Paul's journey feels both epic and intimate.",
+    name: "My Demon",
+    status: "Completed",
+    "ch?": "finished",
+    "type of media": "K-Drama",
+    genre: "Romance",
+    "who's recording": "Anaum",
+    rating: "9",
+    pg: "PG-13",
   },
   {
-    Title: "The Great Gatsby",
-    Author: "F. Scott Fitzgerald",
-    Genre: "Classic",
-    Rating: "4",
-    "Date Read": "2024-02",
-    "Cover URL": "",
-    Notes: "Fitzgerald's prose is stunning. The green light metaphor hit differently on this re-read.",
+    name: "Jujutsu Kaisen",
+    status: "Ongoing",
+    "ch?": "ch 245",
+    "type of media": "Manga",
+    genre: "Action",
+    "who's recording": "Hiba",
+    rating: "8",
+    pg: "PG-13",
   },
   {
-    Title: "Pachinko",
-    Author: "Min Jin Lee",
-    Genre: "Historical Fiction",
-    Rating: "5",
-    "Date Read": "2024-03",
-    "Cover URL": "",
-    Notes: "Four generations of heartbreak and resilience. I couldn't put it down.",
+    name: "Oshi no Ko",
+    status: "Ongoing",
+    "ch?": "ep 9",
+    "type of media": "Anime",
+    genre: "Mystery",
+    "who's recording": "Zahra",
+    rating: "10",
+    pg: "R",
   },
   {
-    Title: "Atomic Habits",
-    Author: "James Clear",
-    Genre: "Non-Fiction",
-    Rating: "4",
-    "Date Read": "2024-04",
-    "Cover URL": "",
-    Notes: "Practical, well-researched, and genuinely changed how I approach small changes.",
+    name: "Solo Leveling",
+    status: "Completed",
+    "ch?": "finished",
+    "type of media": "Manhwa",
+    genre: "Action",
+    "who's recording": "Amnah",
+    rating: "9",
+    pg: "PG-13",
   },
   {
-    Title: "Project Hail Mary",
-    Author: "Andy Weir",
-    Genre: "Sci-Fi",
-    Rating: "5",
-    "Date Read": "2024-05",
-    "Cover URL": "",
-    Notes: "Pure joy. Rocky is one of the best characters in modern sci-fi.",
+    name: "Dilwale Dulhania Le Jayenge",
+    status: "Completed",
+    "ch?": "finished",
+    "type of media": "Bollywood",
+    genre: "Romance",
+    "who's recording": "Shanza",
+    rating: "8",
+    pg: "PG",
   },
   {
-    Title: "Normal People",
-    Author: "Sally Rooney",
-    Genre: "Literary Fiction",
-    Rating: "3",
-    "Date Read": "2024-06",
-    "Cover URL": "",
-    Notes: "Beautiful prose but I found the characters frustrating in the best and worst ways.",
+    name: "The Story of Yanxi Palace",
+    status: "Hiatus",
+    "ch?": "ep 32",
+    "type of media": "C-Drama",
+    genre: "Historical",
+    "who's recording": "Shiza",
+    rating: "7",
+    pg: "PG",
   },
   {
-    Title: "The Midnight Library",
-    Author: "Matt Haig",
-    Genre: "Fiction",
-    Rating: "4",
-    "Date Read": "2024-07",
-    "Cover URL": "",
-    Notes: "Cozy, philosophical, and genuinely moving. Perfect for a rainy afternoon.",
+    name: "Spy x Family",
+    status: "Ongoing",
+    "ch?": "ch 91",
+    "type of media": "Manga",
+    genre: "Comedy",
+    "who's recording": "Fareeha",
+    rating: "9",
+    pg: "PG",
   },
   {
-    Title: "Sapiens",
-    Author: "Yuval Noah Harari",
-    Genre: "Non-Fiction",
-    Rating: "4",
-    "Date Read": "2024-08",
-    "Cover URL": "",
-    Notes: "Changed how I think about human history. Controversial but fascinating.",
+    name: "Omniscient Reader",
+    status: "Ongoing",
+    "ch?": "ch 120",
+    "type of media": "Manhwa",
+    genre: "Fantasy",
+    "who's recording": "Default",
+    rating: "10",
+    pg: "PG-13",
   },
 ];
 
 // ════════════════════════════════════════════════════
 //  STATE
 // ════════════════════════════════════════════════════
-let allBooks    = [];
+let allBooks     = [];
 let activeFilter = "all";
 let activeRating = 0;
 let searchTerm   = "";
@@ -102,33 +112,61 @@ function parseCSV(text) {
   const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
 
   return lines.slice(1).map(line => {
-    const values  = [];
-    let cur       = "";
-    let inQuote   = false;
+    const values = [];
+    let cur      = "";
+    let inQuote  = false;
 
     for (const ch of line) {
-      if (ch === '"')               { inQuote = !inQuote; }
+      if (ch === '"')                  { inQuote = !inQuote; }
       else if (ch === ',' && !inQuote) { values.push(cur.trim()); cur = ""; }
-      else                          { cur += ch; }
+      else                             { cur += ch; }
     }
     values.push(cur.trim());
 
     return Object.fromEntries(
       headers.map((h, i) => [h, (values[i] || "").replace(/^"|"$/g, "")])
     );
-  }).filter(b => b.Title); // skip empty rows
+  }).filter(b => b.name); // skip empty rows
 }
 
 // ════════════════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════════════════
 
-/** Returns an HTML string of ★/☆ icons for a given rating (1–5). */
+/**
+ * Returns a row of 10 star icons coloured up to the given rating.
+ * Rating is out of 10.
+ */
 function starsHTML(rating) {
-  const n = parseInt(rating) || 0;
-  return [1, 2, 3, 4, 5]
-    .map(i => `<span class="star ${i <= n ? "filled" : ""}">${i <= n ? "★" : "☆"}</span>`)
-    .join("");
+  const n = Math.min(parseInt(rating) || 0, 10);
+  return Array.from({ length: 10 }, (_, i) =>
+    `<span class="star ${i < n ? "filled" : ""}">★</span>`
+  ).join("");
+}
+
+/**
+ * Returns a colour-coded badge for the status value.
+ */
+function statusBadge(status) {
+  const colours = {
+    Completed: "#4caf7d",
+    Ongoing:   "#c9973a",
+    Hiatus:    "#e07b54",
+    Unknown:   "#9e9e9e",
+  };
+  const colour = colours[status] || "#9e9e9e";
+  return `<span style="
+    display:inline-block;
+    background:${colour};
+    color:#fff;
+    font-size:0.6rem;
+    font-weight:700;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    padding:0.15rem 0.5rem;
+    border-radius:2px;
+    margin-bottom:0.5rem;
+  ">${status || "Unknown"}</span>`;
 }
 
 // ════════════════════════════════════════════════════
@@ -138,11 +176,11 @@ function renderStats(books) {
   document.getElementById("stat-count").textContent = books.length;
 
   const avg = books.length
-    ? (books.reduce((sum, b) => sum + (parseInt(b.Rating) || 0), 0) / books.length).toFixed(1)
+    ? (books.reduce((sum, b) => sum + (parseInt(b.rating) || 0), 0) / books.length).toFixed(1)
     : "—";
   document.getElementById("stat-avg").textContent = avg;
 
-  const genres = new Set(books.map(b => b.Genre).filter(Boolean));
+  const genres = new Set(books.map(b => b.genre).filter(Boolean));
   document.getElementById("stat-genres").textContent = genres.size;
 }
 
@@ -150,7 +188,7 @@ function renderStats(books) {
 //  RENDER — GENRE FILTER BUTTONS
 // ════════════════════════════════════════════════════
 function renderGenreFilters(books) {
-  const genres    = [...new Set(books.map(b => b.Genre).filter(Boolean))].sort();
+  const genres    = [...new Set(books.map(b => b.genre).filter(Boolean))].sort();
   const container = document.getElementById("genre-filters");
 
   container.innerHTML = genres
@@ -163,37 +201,32 @@ function renderGenreFilters(books) {
 }
 
 // ════════════════════════════════════════════════════
-//  RENDER — SINGLE BOOK CARD
+//  RENDER — SINGLE CARD
 // ════════════════════════════════════════════════════
 function buildCard(book, idx) {
-  const card              = document.createElement("div");
-  card.className          = "book-card";
+  const card                = document.createElement("div");
+  card.className            = "book-card";
   card.style.animationDelay = `${idx * 0.04}s`;
-  card.onclick            = () => openModal(book);
-
-  const hasCover = book["Cover URL"] && book["Cover URL"].startsWith("http");
-  const coverHTML = hasCover
-    ? `<img
-         src="${book["Cover URL"]}"
-         alt="${book.Title}"
-         loading="lazy"
-         onerror="this.parentElement.innerHTML='<div class=cover-placeholder><span class=ph-title>${book.Title}</span><span class=ph-author>${book.Author}</span></div>'"
-       >`
-    : `<div class="cover-placeholder">
-         <span class="ph-title">${book.Title}</span>
-         <span class="ph-author">${book.Author}</span>
-       </div>`;
+  card.onclick              = () => openModal(book);
 
   card.innerHTML = `
     <div class="cover-wrap">
-      ${coverHTML}
-      ${book.Genre ? `<span class="genre-tag">${book.Genre}</span>` : ""}
+      <div class="cover-placeholder">
+        <span class="ph-title">${book.name || ""}</span>
+        <span class="ph-author">${book["type of media"] || ""}</span>
+      </div>
+      ${book.genre ? `<span class="genre-tag">${book.genre}</span>` : ""}
     </div>
     <div class="card-body">
-      <div class="card-title">${book.Title}</div>
-      <div class="card-author">${book.Author || ""}</div>
-      <div class="stars">${starsHTML(book.Rating)}</div>
-      ${book["Date Read"] ? `<div class="card-date">${book["Date Read"]}</div>` : ""}
+      ${statusBadge(book.status)}
+      <div class="card-title">${book.name || ""}</div>
+      <div class="card-author">${book["type of media"] || ""}</div>
+      <div class="stars">${starsHTML(book.rating)}</div>
+      <div class="card-date">
+        ${book["ch?"] ? `Progress: ${book["ch?"]}` : ""}
+        ${book["ch?"] && book["who's recording"] ? " · " : ""}
+        ${book["who's recording"] ? `${book["who's recording"]}` : ""}
+      </div>
     </div>`;
 
   return card;
@@ -206,19 +239,20 @@ function renderGrid() {
   const grid = document.getElementById("book-grid");
 
   const filtered = allBooks.filter(b => {
-    const matchFilter = activeFilter === "all" || b.Genre === activeFilter;
-    const matchRating = !activeRating || (parseInt(b.Rating) || 0) >= activeRating;
+    const matchFilter = activeFilter === "all" || b.genre === activeFilter;
+    const matchRating = !activeRating || (parseInt(b.rating) || 0) >= activeRating;
     const term        = searchTerm.toLowerCase();
     const matchSearch = !term
-      || (b.Title  || "").toLowerCase().includes(term)
-      || (b.Author || "").toLowerCase().includes(term);
+      || (b.name             || "").toLowerCase().includes(term)
+      || (b["type of media"] || "").toLowerCase().includes(term)
+      || (b["who's recording"] || "").toLowerCase().includes(term);
     return matchFilter && matchRating && matchSearch;
   });
 
   grid.innerHTML = "";
 
   if (!filtered.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>No books match your filters.</p></div>`;
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><p>No entries match your filters.</p></div>`;
     return;
   }
 
@@ -240,20 +274,30 @@ function setFilter(val) {
 //  MODAL — OPEN / CLOSE
 // ════════════════════════════════════════════════════
 function openModal(book) {
-  const hasCover = book["Cover URL"] && book["Cover URL"].startsWith("http");
+  // No cover images in your sheet, so always show the placeholder
+  document.getElementById("modal-cover").innerHTML = `
+    <div class="modal-cover-placeholder">📖</div>
+    <button class="modal-close" onclick="closeModalBtn()">✕</button>`;
 
-  document.getElementById("modal-cover").innerHTML = hasCover
-    ? `<img src="${book["Cover URL"]}" alt="${book.Title}">
-       <button class="modal-close" onclick="closeModalBtn()">✕</button>`
-    : `<div class="modal-cover-placeholder">📖</div>
-       <button class="modal-close" onclick="closeModalBtn()">✕</button>`;
+  document.getElementById("modal-genre").textContent  = book.genre             || "";
+  document.getElementById("modal-title").textContent  = book.name              || "";
+  document.getElementById("modal-author").textContent = book["type of media"]  || "";
+  document.getElementById("modal-stars").innerHTML    = starsHTML(book.rating);
 
-  document.getElementById("modal-genre").textContent  = book.Genre  || "";
-  document.getElementById("modal-title").textContent  = book.Title  || "";
-  document.getElementById("modal-author").textContent = book.Author ? `by ${book.Author}` : "";
-  document.getElementById("modal-stars").innerHTML    = starsHTML(book.Rating);
-  document.getElementById("modal-notes").textContent  = book.Notes  || "No notes yet.";
-  document.getElementById("modal-date").textContent   = book["Date Read"] ? `Read: ${book["Date Read"]}` : "";
+  // Notes section reused for recorder info
+  document.getElementById("modal-notes").textContent =
+    book["who's recording"]
+      ? `Recorded by: ${book["who's recording"]}`
+      : "No recorder listed.";
+
+  // Meta line: status · progress · pg rating
+  const parts = [
+    book.status              ? `Status: ${book.status}`       : null,
+    book["ch?"]              ? `Progress: ${book["ch?"]}`     : null,
+    book.pg                  ? `Rated: ${book.pg}`            : null,
+  ].filter(Boolean);
+
+  document.getElementById("modal-date").textContent = parts.join("  ·  ");
 
   document.getElementById("modal-overlay").classList.add("open");
   document.body.style.overflow = "hidden";
@@ -264,7 +308,7 @@ function closeModal(e) {
   if (e.target === document.getElementById("modal-overlay")) closeModalBtn();
 }
 
-/** Close when clicking the ✕ button or pressing Escape */
+/** Close when clicking ✕ or pressing Escape */
 function closeModalBtn() {
   document.getElementById("modal-overlay").classList.remove("open");
   document.body.style.overflow = "";
@@ -283,13 +327,13 @@ async function init() {
   let books;
 
   if (!SHEET_CSV_URL || SHEET_CSV_URL === "YOUR_GOOGLE_SHEETS_CSV_URL_HERE") {
-    // No URL set — show demo data and setup instructions
-    books              = DEMO_BOOKS;
+    // No URL set — show demo data and setup banner
+    books                = DEMO_BOOKS;
     banner.style.display = "block";
   } else {
     banner.style.display = "none";
     try {
-      // Use a CORS proxy so the browser can fetch the public CSV
+      // CORS proxy lets the browser fetch a public Google Sheets CSV
       const proxyURL = `https://api.allorigins.win/raw?url=${encodeURIComponent(SHEET_CSV_URL)}`;
       const res      = await fetch(proxyURL);
       const text     = await res.text();
@@ -308,11 +352,11 @@ async function init() {
   renderGenreFilters(allBooks);
   renderGrid();
 
-  // Rating toggle buttons
+  // Rating filter buttons (now out of 10)
   document.querySelectorAll("[data-rating]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const r = parseInt(btn.dataset.rating);
-      activeRating = activeRating === r ? 0 : r; // toggle off if already selected
+      const r      = parseInt(btn.dataset.rating);
+      activeRating = activeRating === r ? 0 : r; // toggle off if already active
       document.querySelectorAll("[data-rating]").forEach(b => b.classList.remove("active"));
       if (activeRating) btn.classList.add("active");
       renderGrid();
@@ -322,7 +366,7 @@ async function init() {
   // "All" genre button
   document.querySelector('[data-filter="all"]').addEventListener("click", () => setFilter("all"));
 
-  // Search input
+  // Search — matches name, media type, or recorder
   document.getElementById("search-input").addEventListener("input", e => {
     searchTerm = e.target.value;
     renderGrid();
