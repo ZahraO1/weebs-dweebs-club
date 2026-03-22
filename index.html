@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Reading Journal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <p class="header-label">Personal Library</p>
+  <h1>My Reading Journal</h1>
+  <p class="subtitle">A record of every book I've loved, liked, and loathed.</p>
+</header>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="filter-group">
+    <span class="filter-label">Filter:</span>
+    <button class="filter-btn active" data-filter="all">All</button>
+    <!-- Genre buttons injected by JS -->
+    <span id="genre-filters"></span>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">Rating:</span>
+    <button class="filter-btn" data-rating="5">★★★★★</button>
+    <button class="filter-btn" data-rating="4">★★★★+</button>
+    <button class="filter-btn" data-rating="3">★★★+</button>
+  </div>
+  <input class="search-box" type="search" placeholder="Search titles or authors…" id="search-input"/>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar" id="stats-bar">
+  <div class="stat">
+    <div class="stat-number" id="stat-count">—</div>
+    <div class="stat-label">Books Read</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number" id="stat-avg">—</div>
+    <div class="stat-label">Avg Rating</div>
+  </div>
+  <div class="stat">
+    <div class="stat-number" id="stat-genres">—</div>
+    <div class="stat-label">Genres</div>
+  </div>
+</div>
+
+<!-- CONFIG BANNER (hidden once real data loads) -->
+<div class="config-banner" id="config-banner">
+  <strong>📚 Setup: Connect your Google Sheet</strong>
+  In <code>script.js</code>, replace <code>SHEET_CSV_URL</code> with your published Google Sheets CSV link:<br/>
+  <em>Google Sheets → File → Share → Publish to web → Select your sheet → CSV → Copy link</em><br/><br/>
+  Your sheet should have columns: <code>Title, Author, Genre, Rating, Date Read, Cover URL, Notes</code>
+</div>
+
+<!-- BOOK GRID -->
+<div class="grid-container">
+  <div id="loading-state" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your library…</p>
+  </div>
+  <div class="grid" id="book-grid"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-cover" id="modal-cover">
+      <div class="modal-cover-placeholder">📖</div>
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-genre" id="modal-genre"></div>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-author" id="modal-author"></div>
+      <div class="modal-stars stars" id="modal-stars"></div>
+      <hr class="modal-divider"/>
+      <div class="modal-notes" id="modal-notes"></div>
+      <div class="modal-meta" id="modal-date"></div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
